@@ -1,0 +1,92 @@
+#%RAML 1.0
+title: Sample API
+version: v1.0-SNAPSHOT
+protocols: [ HTTPS ]
+description: Simple sample with raml
+baseUri: http://api.samplehost.com
+mediaType: application/json
+
+#security is defined in the root level of the raml.
+securitySchemes:
+  basicAuth:
+    description: Each request must contain the headers necessary for
+                 basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password"
+                       credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
+
+#We are going to define the data type
+types:
+  User:
+    type: object
+    properties:
+      id:
+        required: true
+        type: integer
+      name:
+        required: true
+        type: string
+      nickname:
+        required: false
+        type: string
+  Error:
+    type: object
+    properties:
+      title: string
+#RAML uses some syntactical shortcuts to make our type definition less verbose
+#types:
+#User:
+#properties:
+#  id: integer
+#  name: string
+#  nickname?: string ? it meaning that is not mandatory
+
+#resoruces
+/user:
+  get:
+    description: List all users in the system
+  post:
+    description: Create a new user in the system
+    body:
+      application/json:
+        type: User
+        example: {"id": 3, "name": "pop"}
+    responses:
+        201:
+          body:
+            application/json:
+              type: User
+              example: {"id": 3, "name": "pop"}
+  /{id}:
+    get:
+      description: Get a user by Id
+      responses:
+        200:
+          body:
+            application/json:
+              type: User
+              example: {"id":1,"name":"pepe"}
+        404:
+          body:
+            application/json:
+              type: Error
+              example: {"title":"Page not found"}
+  /name/{nickname}:
+    get:
+      description: Get a user by nickname
+      responses:
+        200:
+          body:
+            application/json:
+              type: User
+              example: {"id":1,"name":"noel","nickname":"nole"}
